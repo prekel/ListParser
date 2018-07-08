@@ -10,54 +10,128 @@ namespace ListParser.Core
 	{
 		public IDictionary<Enrollee, List<Direction>> Enrollers { get; } = new SortedDictionary<Enrollee, List<Direction>>();
 
-		public void FromStreamReader(StreamReader r)
+		public TextReader Reader { get; set; }
+
+		public void Init1(TextReader r)
 		{
+			Reader = r;
 			var nl = 0;
 			var rcode = new Regex("[0-9][0-9].[0-9][0-9].[0-9][0-9]");
 			var dir = new Direction("");
-			while (!r.EndOfStream)
+			try
 			{
-				var l = r.ReadLine();
-				if (l.Length < 8 || !rcode.IsMatch(l.Substring(0, 8))) continue;
-				dir = new Direction(l);
-				Add(dir);
-				break;
-			}
-			while (!r.EndOfStream)
-			{
-				var l = r.ReadLine();
-				if (l.Length >= 8 && rcode.IsMatch(l.Substring(0, 8)))
+				while (true)
 				{
+					var l = Reader.ReadLine();
+					if (l.Length < 8 || !rcode.IsMatch(l.Substring(0, 8))) continue;
 					dir = new Direction(l);
 					Add(dir);
-					continue;
+					break;
 				}
-				if (Int32.TryParse(l, out nl))
+				while (true)
 				{
-					var ln = r.ReadLine();
-					var fn = r.ReadLine();
-					var p = r.ReadLine();
-					Enrollee enr;
-					if (p == "ЕГЭ" || p == "ВИ")
+					var l = Reader.ReadLine();
+					if (l.Length >= 8 && rcode.IsMatch(l.Substring(0, 8)))
 					{
-						enr = new Enrollee(ln, fn, "", p);
+						dir = new Direction(l);
+						Add(dir);
+						continue;
 					}
-					else
+					if (Int32.TryParse(l, out nl))
 					{
-						enr = new Enrollee(ln, fn, p, r.ReadLine());
+						var ln = Reader.ReadLine();
+						var fn = Reader.ReadLine();
+						var p = Reader.ReadLine();
+						Enrollee enr;
+						if (p == "ЕГЭ" || p == "ВИ")
+						{
+							enr = new Enrollee(ln, fn, "", p);
+						}
+						else
+						{
+							enr = new Enrollee(ln, fn, p, r.ReadLine());
+						}
+						if (Enrollers.ContainsKey(enr))
+						{
+							Enrollers[enr].Add(dir);
+							enr.Directions = Enrollers[enr];
+						}
+						else
+						{
+							Enrollers.Add(enr, enr.Directions);
+							enr.Directions.Add(dir);
+						}
+						dir.Enrollers.Add(enr);
 					}
-					if (Enrollers.ContainsKey(enr))
-					{
-						Enrollers[enr].Add(dir);
-						enr.Directions = Enrollers[enr];
-					}
-					else
-					{
-						Enrollers.Add(enr, enr.Directions);
-						enr.Directions.Add(dir);
-					}
-					dir.Enrollers.Add(enr);
 				}
+			}
+			catch (IOException)
+			{
+
+			}
+		}
+
+		public void Init(TextReader r)
+		{
+			Reader = r;
+			var nl = 0;
+			var rcode = new Regex("[0-9][0-9].[0-9][0-9].[0-9][0-9]");
+			var dir = new Direction("");
+			try
+			{
+				while (true)
+				{
+					var l = Reader.ReadLine();
+					if (l.Length < 8 || !rcode.IsMatch(l.Substring(0, 8))) continue;
+					dir = new Direction(l);
+					Add(dir);
+					break;
+				}
+				while (true)
+				{
+					var l = Reader.ReadLine();
+					if (l.Length >= 8 && rcode.IsMatch(l.Substring(0, 8)))
+					{
+						dir = new Direction(l);
+						Add(dir);
+						continue;
+					}
+					if (Int32.TryParse(l.Split()[0], out nl))
+					{
+						var ls = l.Split();
+						var ln = ls[1];
+						var fn = ls[2];
+						var p = ls[3];
+						Enrollee enr;
+						if (p == "ЕГЭ" || p == "ВИ")
+						{
+							enr = new Enrollee(ln, fn, "", p);
+						}
+						else
+						{
+							enr = new Enrollee(ln, fn, p, ls[4]);
+						}
+						if (Enrollers.ContainsKey(enr))
+						{
+							Enrollers[enr].Add(dir);
+							enr.Directions = Enrollers[enr];
+						}
+						else
+						{
+							Enrollers.Add(enr, enr.Directions);
+							enr.Directions.Add(dir);
+						}
+						dir.Enrollers.Add(enr);
+					}
+				}
+			}
+			catch (IOException)
+			{
+
+			}
+			catch (NullReferenceException)
+			{
+
 			}
 		}
 	}
