@@ -2,7 +2,7 @@
   "profiles": {
     "listparser": {
       "commandName": "Project",
-      "commandLineArgs": "1707",
+      "commandLineArgs": "18.07.2018",
       "workingDirectory": "C:\\Users\\vladislav\\OneDrive\\Projects\\ListParser\\.data",
       "environmentVariables": {
         "Ключ": "Значение"
