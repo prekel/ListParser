@@ -11,7 +11,7 @@ namespace ListParser.Core
         public string Patronymic { get; private set; }
         public string EgeTest { get; private set; }
 
-		public List<Direction> Directions { get; set; } = new List<Direction>();
+		public IDictionary<Direction, int> Directions { get; set; } = new SortedDictionary<Direction, int>();
 
 		public Enrollee(string ln, string fn, string p, string e)
 		{
