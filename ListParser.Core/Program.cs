@@ -86,27 +86,38 @@ namespace ListParser.Core
 
 			if (args.Contains("-q"))
 			{
+				// Максимальное число выбранных направлений
 				var max = b.Enrollers.Max(g => g.Value.Count);
 				var q1 = (from i in b.Enrollers where i.Value.Count == max select i).ToList();
 				var q2 = b.Enrollers.OrderBy(g => g.Value.Count).Reverse().ToList();
 
+				// Неуникальные имя и фамилия
 				var d1 = b.Enrollers.ToLookup(g => $"{g.Key.LastName} {g.Key.FirstName}")
 					.Where(h => h.ToList().Count > 1)
 					.ToDictionary(k => k.Key, v => v.ToList());
-				var d2 = b.Enrollers.ToLookup(g => $"{g.Key.LastName}")
-					//.Where(h => h.ToList().Count > 1)
+
+				// Все фамилии
+				var d2 = b.Enrollers.ToLookup(g => g.Key.LastName)
 					.ToDictionary(k => k.Key, v => v.ToList());
 
+				// Уникальные имена
 				var d3 = b.Enrollers.ToLookup(g => $"{g.Key.FirstName}")
 					.Where(h => h.ToList().Count == 1)
 					.ToDictionary(k => k.Key, v => v.ToList());
 				var names = d3.Keys.ToList().OrderBy(k => k);
 				var strnames = String.Join(", ", names);
 
+				// Жекичи
 				var zhe = b.Enrollers.Where(s => s.Key.FirstName == "Евгений" || s.Key.FirstName == "Евгения")
 					.Select(k => k.Key.ToString1())
 					.OrderBy(k => k);
 				var strzhe = String.Join(", ", zhe);
+
+				// Больше 3 направлений
+				var f1 = (from i in b.Enrollers select i.Value.ToLookup(k => k.Key.Code.ToString())).ToList();
+				var f2 = (from i in b.Enrollers where i.Value.ToLookup(k => k.Key.Code.ToString()).Count > 3 select i)
+					.ToDictionary(k => k.Key, v => v.Value);
+				using (var sf2 = new StreamWriter("f2.json")) sf2.Write(JsonConvert.SerializeObject(f2, Formatting.Indented));
 			}
 		}
 
