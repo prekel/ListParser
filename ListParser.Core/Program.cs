@@ -74,11 +74,39 @@ namespace ListParser.Core
 			var b = new Base();
 			b.Init(d);
 
-			using (var sw1 = new StreamWriter("1.json"))
-			using (var sw2 = new StreamWriter("2.json"))
+			if (args.Contains("-json"))
 			{
-				sw1.Write(JsonConvert.SerializeObject(b, Formatting.Indented));
-				sw2.Write(JsonConvert.SerializeObject(b.Enrollers, Formatting.Indented));
+				using (var sw1 = new StreamWriter("1.json"))
+				using (var sw2 = new StreamWriter("2.json"))
+				{
+					sw1.Write(JsonConvert.SerializeObject(b, Formatting.Indented));
+					sw2.Write(JsonConvert.SerializeObject(b.Enrollers, Formatting.Indented));
+				}
+			}
+
+			if (args.Contains("-q"))
+			{
+				var max = b.Enrollers.Max(g => g.Value.Count);
+				var q1 = (from i in b.Enrollers where i.Value.Count == max select i).ToList();
+				var q2 = b.Enrollers.OrderBy(g => g.Value.Count).Reverse().ToList();
+
+				var d1 = b.Enrollers.ToLookup(g => $"{g.Key.LastName} {g.Key.FirstName}")
+					.Where(h => h.ToList().Count > 1)
+					.ToDictionary(k => k.Key, v => v.ToList());
+				var d2 = b.Enrollers.ToLookup(g => $"{g.Key.LastName}")
+					//.Where(h => h.ToList().Count > 1)
+					.ToDictionary(k => k.Key, v => v.ToList());
+
+				var d3 = b.Enrollers.ToLookup(g => $"{g.Key.FirstName}")
+					.Where(h => h.ToList().Count == 1)
+					.ToDictionary(k => k.Key, v => v.ToList());
+				var names = d3.Keys.ToList().OrderBy(k => k);
+				var strnames = String.Join(", ", names);
+
+				var zhe = b.Enrollers.Where(s => s.Key.FirstName == "Евгений" || s.Key.FirstName == "Евгения")
+					.Select(k => k.Key.ToString1())
+					.OrderBy(k => k);
+				var strzhe = String.Join(", ", zhe);
 			}
 		}
 

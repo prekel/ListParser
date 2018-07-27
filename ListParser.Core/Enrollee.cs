@@ -22,11 +22,12 @@ namespace ListParser.Core
 		}
 
 		public override string ToString() => $"{LastName} {FirstName} {Patronymic} {EgeTest}";
+		public string ToString1() => $"{LastName} {FirstName} {Patronymic}";
 
 		public int CompareTo(object obj)
 		{
 			var en = (Enrollee)obj;
-			return ToString().CompareTo(en.ToString());
+			return ToString1().CompareTo(en.ToString1());
 		}
 	}
 }
